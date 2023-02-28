@@ -7,4 +7,4 @@
 
 Перед отправкой работы на проверку убедитесь что она соответствует требованиям проектной работы
 
-https://github.com/emerenkov/mesto-project-plus/pull/1
+## link to merg https://github.com/emerenkov/mesto-project-plus/pull/1
