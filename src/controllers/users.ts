@@ -12,13 +12,13 @@ export const getUserById = (req: Request, res: Response) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).send('user not found');
+        return res.status(404).send({ message: 'user not found' });
       }
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send('you sent not correct data');
+        return res.status(400).send({ message: 'you sent not correct data' });
       }
       return res.status(500).send({ message: 'server error' });
     });
@@ -31,7 +31,7 @@ export const createUser = (req: Request, res: Response) => {
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send('you sent not correct data');
+        return res.status(400).send({ message: 'you sent not correct data' });
       }
       return res.status(500).send({ message: 'server error' });
     });
@@ -43,13 +43,13 @@ export const updateProfile = (req: RequestCustom, res: Response) => {
   User.findByIdAndUpdate(profile, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.status(404).send('user not found');
+        return res.status(404).send({ message: 'user not found' });
       }
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send('you sent not correct data');
+        return res.status(400).send({ message: 'you sent not correct data' });
       }
       return res.status(500).send({ message: 'server error' });
     });
@@ -61,13 +61,13 @@ export const updateAvatar = (req: RequestCustom, res: Response) => {
   User.findByIdAndUpdate(profile, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.status(404).send('user not found');
+        return res.status(404).send({ message: 'user not found' });
       }
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send('you sent not correct data');
+        return res.status(400).send({ message: 'you sent not correct data' });
       }
       return res.status(500).send({ message: 'server error' });
     });
