@@ -8,6 +8,6 @@ routes.use('/users', userRouter);
 
 routes.use('/cards', cardRouter);
 
-routes.use((req:Request, res:Response) => res.status(404).send('page not () found'));
+routes.use((req:Request, res:Response) => res.status(404).send({ message: 'page not found' }));
 
 export default routes;
