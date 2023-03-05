@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import Card from '../models/cards';
 import { RequestCustom } from '../middleware/type';
 import RequestError from '../errors/request-error';
 import NotFoundError from '../errors/not-found-error';
 import ForbiddenError from '../errors/forbidden-error';
-import mongoose from "mongoose";
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})

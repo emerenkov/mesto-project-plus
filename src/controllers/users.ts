@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import User from '../models/user';
 import { RequestCustom } from '../middleware/type';
 import NotFoundError from '../errors/not-found-error';
 import RequestError from '../errors/request-error';
 import ConflictError from '../errors/conflict-error';
-import mongoose from "mongoose";
 
 export const getUsers = (req: Request, res: Response, next: NextFunction) => {
   User.find({})
