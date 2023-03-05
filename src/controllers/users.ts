@@ -6,6 +6,7 @@ import { RequestCustom } from '../middleware/type';
 import NotFoundError from '../errors/not-found-error';
 import RequestError from '../errors/request-error';
 import ConflictError from '../errors/conflict-error';
+import mongoose from "mongoose";
 
 export const getUsers = (req: Request, res: Response, next: NextFunction) => {
   User.find({})
@@ -22,7 +23,7 @@ export const getUserById = (req: Request, res: Response, next: NextFunction) => 
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(new RequestError('you sent not correct data'));
       }
       next(err);
@@ -54,7 +55,7 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
       if (err.code === 11000) {
         return next(new ConflictError('this email used'));
       }
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return next(new RequestError('you sent not correct data'));
       }
       next(err);
@@ -72,7 +73,7 @@ export const updateProfile = (req: RequestCustom, res: Response, next: NextFunct
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return next(new RequestError('you sent not correct data'));
       }
       next(err);
@@ -90,7 +91,7 @@ export const updateAvatar = (req: RequestCustom, res: Response, next: NextFuncti
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return next(new RequestError('you sent not correct data'));
       }
       next(err);

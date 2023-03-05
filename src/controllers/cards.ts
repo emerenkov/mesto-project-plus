@@ -4,6 +4,7 @@ import { RequestCustom } from '../middleware/type';
 import RequestError from '../errors/request-error';
 import NotFoundError from '../errors/not-found-error';
 import ForbiddenError from '../errors/forbidden-error';
+import mongoose from "mongoose";
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
@@ -20,7 +21,7 @@ export const createCard = (req: RequestCustom, res: Response, next: NextFunction
       res.status(201).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return next(new RequestError('you sent not correct data'));
       }
       next(err);
@@ -39,7 +40,7 @@ export const deletedCardById = (req: RequestCustom, res: Response, next: NextFun
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(new RequestError('you sent not correct data'));
       }
       next(err);
@@ -57,7 +58,7 @@ export const likeCard = (req: RequestCustom, res: Response, next: NextFunction) 
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(new RequestError('you sent not correct data'));
       }
       next(err);
@@ -74,7 +75,7 @@ export const deleteLikeCard = (req: RequestCustom, res: Response, next: NextFunc
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(new RequestError('you sent not correct data'));
       }
       next(err);
