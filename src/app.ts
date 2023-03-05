@@ -1,4 +1,4 @@
-import express, {NextFunction, Request, Response} from 'express';
+import express from 'express';
 import mongoose from "mongoose";
 import * as dotenv from 'dotenv';
 import routes from "./routes";
@@ -31,8 +31,6 @@ app.use(limitedRequest);
 
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateUserBody, createUser);
-
-// app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(auth);
 

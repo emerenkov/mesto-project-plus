@@ -18,7 +18,7 @@ export const createCard = (req: RequestCustom, res: Response, next: NextFunction
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new RequestError('you sent not correct data'));
+        return next(new RequestError('you sent not correct data'));
       }
       next(err);
     });
@@ -28,17 +28,16 @@ export const deletedCardById = (req: RequestCustom, res: Response, next: NextFun
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        next(new NotFoundError('card ID not found'));
+        return next(new NotFoundError('card ID not found'));
       }
-      if (card && card.owner.toString() === req.user?._id.toString()) {
-        card.deleteOne();
-        return res.status(200).send({ data: card });
-      }
-      next(new ForbiddenError('you not owner'));
+      if (card?.owner.toString() === req.user?._id.toString()) {
+        card?.delete();
+      } next(new ForbiddenError('you not owner'));
+      return res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new RequestError('you sent not correct data'));
+        return next(new RequestError('you sent not correct data'));
       }
       next(err);
     });
@@ -55,7 +54,7 @@ export const likeCard = (req: RequestCustom, res: Response, next: NextFunction) 
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new RequestError('you sent not correct data'));
+        return next(new RequestError('you sent not correct data'));
       }
       next(err);
     });
@@ -66,13 +65,13 @@ export const deleteLikeCard = (req: RequestCustom, res: Response, next: NextFunc
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: id } }, { new: true })
     .then((card) => {
       if (!card) {
-        next(new NotFoundError('card ID not found'));
+        return next(new NotFoundError('card ID not found'));
       }
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new RequestError('you sent not correct data'));
+        return next(new RequestError('you sent not correct data'));
       }
       next(err);
     });
