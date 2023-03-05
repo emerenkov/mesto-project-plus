@@ -6,9 +6,9 @@ export const validateUserBody = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30).default('Жак-Ив Кусто'),
-    about: Joi.string().min(2).max(200).default('Исследователь'),
-    avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png').regex(correctLink),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(200),
+    avatar: Joi.string().regex(correctLink),
   }).unknown(true), // валидируем заголовки
 });
 
@@ -34,7 +34,7 @@ export const validateUpdateProfile = celebrate({
 
 export const validateUpdateAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().regex(correctLink),
+    avatar: Joi.string().required().regex(correctLink),
   }).unknown(true), // валидируем заголовки
 });
 

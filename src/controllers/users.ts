@@ -17,13 +17,13 @@ export const getUserById = (req: Request, res: Response, next: NextFunction) => 
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('user not found'));
+        return next(new NotFoundError('user not found'));
       }
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new RequestError('you sent not correct data'));
+        return next(new RequestError('you sent not correct data'));
       }
       next(err);
     });
@@ -47,10 +47,10 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError('this email used'));
+        return next(new ConflictError('this email used'));
       }
       if (err.name === 'ValidationError') {
-        next(new RequestError('you sent not correct data'));
+        return next(new RequestError('you sent not correct data'));
       }
       next(err);
     });
@@ -62,13 +62,13 @@ export const updateProfile = (req: RequestCustom, res: Response, next: NextFunct
   User.findByIdAndUpdate(profile, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('user not found'));
+        return next(new NotFoundError('user not found'));
       }
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new RequestError('you sent not correct data'));
+        return next(new RequestError('you sent not correct data'));
       }
       next(err);
     });
@@ -80,13 +80,13 @@ export const updateAvatar = (req: RequestCustom, res: Response, next: NextFuncti
   User.findByIdAndUpdate(profile, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('user not found'));
+        return next(new NotFoundError('user not found'));
       }
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new RequestError('you sent not correct data'));
+        return next(new RequestError('you sent not correct data'));
       }
       next(err);
     });
@@ -110,14 +110,9 @@ export const getUser = (req: RequestCustom, res: Response, next: NextFunction) =
   User.findById(req.user?._id)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('user not found'));
+        return next(new NotFoundError('user not found'));
       }
       return res.status(200).send({ data: user });
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new NotFoundError('user not found'));
-      }
-      next(err);
-    });
+    .catch(next);
 };

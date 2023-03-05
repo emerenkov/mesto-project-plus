@@ -14,9 +14,7 @@ export interface IUser {
 
 interface UserModel extends mongoose.Model<IUser> {
   findUserByCredentials: (
-    // eslint-disable-next-line no-unused-vars
     email: string,
-    // eslint-disable-next-line no-unused-vars
     password: string
   ) => Promise<mongoose.Document<unknown, any, IUser>>
 }
