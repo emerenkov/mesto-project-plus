@@ -44,7 +44,12 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
       email: req.body.email,
       password: hash,
     }))
-    .then((user) => res.status(201).send({ data: user }))
+    .then((user: any) => {
+      let userCopy = user;
+      userCopy = user.toObject();
+      delete userCopy.password;
+      res.status(201).send({data: userCopy})
+    })
     .catch((err) => {
       if (err.code === 11000) {
         return next(new ConflictError('this email used'));
