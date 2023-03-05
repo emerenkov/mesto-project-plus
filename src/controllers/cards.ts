@@ -7,6 +7,7 @@ import ForbiddenError from '../errors/forbidden-error';
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
+    .populate(['owner'])
     .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
@@ -15,7 +16,9 @@ export const createCard = (req: RequestCustom, res: Response, next: NextFunction
   const { name, link } = req.body;
   const id = req.user?._id;
   Card.create({ name, link, owner: id })
-    .then((card) => res.status(201).send({ data: card }))
+    .then((card) => {
+      res.status(201).send({ data: card });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new RequestError('you sent not correct data'));
@@ -46,6 +49,7 @@ export const deletedCardById = (req: RequestCustom, res: Response, next: NextFun
 export const likeCard = (req: RequestCustom, res: Response, next: NextFunction) => {
   const id = req.user?._id;
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: id } }, { new: true })
+    .populate(['owner'])
     .then((card) => {
       if (!card) {
         next(new NotFoundError('card ID not found'));

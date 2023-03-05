@@ -48,7 +48,7 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
       let userCopy = user;
       userCopy = user.toObject();
       delete userCopy.password;
-      res.status(201).send({data: userCopy})
+      res.status(201).send({ data: userCopy });
     })
     .catch((err) => {
       if (err.code === 11000) {
