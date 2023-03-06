@@ -8,7 +8,7 @@ import ForbiddenError from '../errors/forbidden-error';
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
-    .populate(['owner'])
+    .populate(['owner', 'likes'])
     .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
@@ -34,11 +34,12 @@ export const deletedCardById = (req: RequestCustom, res: Response, next: NextFun
       if (!card) {
         return next(new NotFoundError('card ID not found'));
       }
-      if (card?.owner.toString() === req.user?._id.toString()) {
+      if (card.owner.toString() === req.user?._id.toString()) {
         card?.delete();
-      } next(new ForbiddenError('you not owner'));
-      return res.status(200).send({ data: card });
+      }
+      return next(new ForbiddenError('you not owner'));
     })
+    .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(new RequestError('you sent not correct data'));
