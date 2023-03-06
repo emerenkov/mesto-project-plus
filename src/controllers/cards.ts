@@ -35,7 +35,7 @@ export const deletedCardById = (req: RequestCustom, res: Response, next: NextFun
         return next(new NotFoundError('card ID not found'));
       }
       if (card.owner.toString() === req.user?._id.toString()) {
-        card?.delete();
+        return card.delete();
       }
       return next(new ForbiddenError('you not owner'));
     })
