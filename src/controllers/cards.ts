@@ -39,7 +39,7 @@ export const deletedCardById = (req: RequestCustom, res: Response, next: NextFun
       }
       return next(new ForbiddenError('you not owner'));
     })
-    .then((card) => res.status(200).send({ data: card }))
+    .then(() => res.status(200).send({ message: 'card deleted' }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(new RequestError('you sent not correct data'));
