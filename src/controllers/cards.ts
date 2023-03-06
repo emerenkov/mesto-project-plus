@@ -1,76 +1,84 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import Card from '../models/cards';
 import { RequestCustom } from '../middleware/type';
+import RequestError from '../errors/request-error';
+import NotFoundError from '../errors/not-found-error';
+import ForbiddenError from '../errors/forbidden-error';
 
-export const getCards = (req: Request, res: Response) => {
+export const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
+    .populate(['owner', 'likes'])
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'server error' }));
+    .catch(next);
 };
 
-export const createCard = (req: RequestCustom, res: Response) => {
+export const createCard = (req: RequestCustom, res: Response, next: NextFunction) => {
   const { name, link } = req.body;
   const id = req.user?._id;
   Card.create({ name, link, owner: id })
-    .then((card) => res.status(201).send({ data: card }))
+    .then((card) => {
+      res.status(201).send({ data: card });
+    })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(400).send('you sent not correct data');
+      if (err instanceof mongoose.Error.ValidationError) {
+        return next(new RequestError('you sent not correct data'));
       }
-      return res.status(500).send({ message: 'server error' });
+      next(err);
     });
 };
 
-export const deletedCardById = (req: RequestCustom, res: Response) => {
+export const deletedCardById = (req: RequestCustom, res: Response, next: NextFunction) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res.status(404).send('card ID not found');
+        return next(new NotFoundError('card ID not found'));
       }
-      if (card && card.owner.toString() === req.user?._id.toString()) {
-        card.deleteOne();
-        res.send('card deleted');
-      } res.send('you can not delete');
-      return res.status(200).send({ data: card });
+      if (card.owner.toString() === req.user?._id.toString()) {
+        return card.delete();
+      }
+      return next(new ForbiddenError('you not owner'));
     })
+    .then(() => res.status(200).send({ message: 'card deleted' }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send('you sent not correct data');
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new RequestError('you sent not correct data'));
       }
-      return res.status(500).send({ message: 'server error' });
+      next(err);
     });
 };
 
-export const likeCard = (req: RequestCustom, res: Response) => {
+export const likeCard = (req: RequestCustom, res: Response, next: NextFunction) => {
   const id = req.user?._id;
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: id } }, { new: true })
+    .populate(['owner'])
     .then((card) => {
       if (!card) {
-        return res.status(404).send('card ID not found');
+        next(new NotFoundError('card ID not found'));
       }
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send('you sent not correct data');
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new RequestError('you sent not correct data'));
       }
-      return res.status(500).send({ message: 'server error' });
+      next(err);
     });
 };
 
-export const deleteLikeCard = (req: RequestCustom, res: Response) => {
+export const deleteLikeCard = (req: RequestCustom, res: Response, next: NextFunction) => {
   const id = req.user?._id;
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: id } }, { new: true })
     .then((card) => {
       if (!card) {
-        return res.status(404).send('card ID not found');
+        return next(new NotFoundError('card ID not found'));
       }
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send('you sent not correct data');
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new RequestError('you sent not correct data'));
       }
-      return res.status(500).send({ message: 'server error' });
+      next(err);
     });
 };

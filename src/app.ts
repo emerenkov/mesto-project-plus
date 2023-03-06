@@ -1,30 +1,57 @@
-import express, {NextFunction, Request, Response} from 'express';
+import express from 'express';
 import mongoose from "mongoose";
-import path from "path";
+import * as dotenv from 'dotenv';
 import routes from "./routes";
-import {RequestCustom} from "./middleware/type";
+import {createUser, login} from "./controllers/users";
+import auth from "./middleware/auth";
+import {errorLogger, requestLogger} from "./middleware/logger";
+import {errorHandler} from "./middleware/errors";
+import {errors} from "celebrate";
+import {validateLogin, validateUserBody} from "./validator/validator";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 
-const { PORT = 3000 } = process.env;
+dotenv.config();
+
+const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 const app = express();
-mongoose.set('strictQuery', false);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/mestodb');
-
-app.use((req: Request, res: Response, next: NextFunction) => {
-  (req as RequestCustom).user = {
-    _id:'63fdc1b0ea140282a4c4b787' // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-
-  next();
+const limitedRequest = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 100, // 100 request for one window
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(requestLogger);
+
+app.use(helmet());
+
+app.use(express.json());
+app.use(limitedRequest);
+
+app.post('/signin', validateLogin, login);
+app.post('/signup', validateUserBody, createUser);
+
+app.use(auth);
+
 app.use(routes);
 
-app.listen(PORT, () => {
-  // Если всё работает, консоль покажет, какой порт приложение слушает
-  console.log(`App listening on port ${PORT}`);
-});
+app.use(errorLogger);
+
+app.use(errors()); // celebrate
+
+app.use(errorHandler);
+
+async function connect() {
+  try {
+    mongoose.set('strictQuery', false);
+    await mongoose.connect(MONGO_URL);
+    await app.listen(PORT);
+    console.log(`App listening on port ${PORT}`, MONGO_URL);
+
+  } catch (err) {
+    console.log('error on server', err);
+  }
+}
+
+connect();
